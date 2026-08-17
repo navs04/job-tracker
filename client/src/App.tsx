@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Applications from "./pages/Applications";
 import ApplicationDetail from "./pages/ApplicationDetail";
+import Pipeline from "./pages/Pipeline";
 
 function DashboardPlaceholder() {
   const { user, logout } = useAuth();
@@ -52,6 +53,14 @@ function App() {
           }
           />
           <Route path="/" element={<Login />} />
+          <Route
+          path="/pipeline"
+          element={
+          <ProtectedRoute>
+            <Pipeline />
+            </ProtectedRoute>
+          }
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
