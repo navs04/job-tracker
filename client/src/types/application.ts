@@ -32,6 +32,29 @@ export interface Application {
   updatedAt: string;
 }
 
+export interface StatusHistoryEntry {
+  id: string;
+  fromStatus: ApplicationStatus | null;
+  toStatus: ApplicationStatus;
+  changedAt: string;
+}
+
+export interface Interview {
+  id: string;
+  round: string;
+  scheduledAt: string;
+  type: string;
+  interviewer: string | null;
+  meetingLink: string | null;
+  notes: string | null;
+  outcome: string;
+}
+
+export interface ApplicationDetail extends Application {
+  statusHistory: StatusHistoryEntry[];
+  interviews: Interview[];
+}
+
 export type ApplicationInput = Partial<Omit<Application, "id" | "createdAt" | "updatedAt">>;
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {

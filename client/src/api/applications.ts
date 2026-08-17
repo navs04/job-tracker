@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import type {  Application, ApplicationInput, ApplicationStatus, WorkMode, EmploymentType } from "../types/application";
+import type {  Application, ApplicationInput, ApplicationDetail, ApplicationStatus, WorkMode, EmploymentType } from "../types/application";
 
 export interface ApplicationFilters {
   search?: string;
@@ -25,8 +25,8 @@ export async function fetchApplications(filters: ApplicationFilters = {}): Promi
   return data;
 }
 
-export async function fetchApplication(id: string): Promise<Application> {
-  const { data } = await apiClient.get<Application>(`/applications/${id}`);
+export async function fetchApplication(id: string): Promise<ApplicationDetail> {
+  const { data } = await apiClient.get<ApplicationDetail>(`/applications/${id}`);
   return data;
 }
 
