@@ -1,8 +1,27 @@
 import { apiClient } from "./client";
-import type { Application, ApplicationInput } from "../types/application";
+import type {  Application, ApplicationInput, ApplicationStatus, WorkMode, EmploymentType } from "../types/application";
 
-export async function fetchApplications(): Promise<Application[]> {
-  const { data } = await apiClient.get<Application[]>("/applications");
+export interface ApplicationFilters {
+  search?: string;
+  status?: ApplicationStatus | "";
+  workMode?: WorkMode | "";
+  employmentType?: EmploymentType | "";
+  location?: string;
+  sortBy?: "createdAt" | "applicationDate" | "deadline" | "company";
+  sortOrder?: "asc" | "desc";
+}
+
+export async function fetchApplications(filters: ApplicationFilters = {}): Promise<Application[]> {
+  const params: Record<string, string> = {};
+  if (filters.search) params.search = filters.search;
+  if (filters.status) params.status = filters.status;
+  if (filters.workMode) params.workMode = filters.workMode;
+  if (filters.employmentType) params.employmentType = filters.employmentType;
+  if (filters.location) params.location = filters.location;
+  if (filters.sortBy) params.sortBy = filters.sortBy;
+  if (filters.sortOrder) params.sortOrder = filters.sortOrder;
+
+  const { data } = await apiClient.get<Application[]>("/applications", { params });
   return data;
 }
 
