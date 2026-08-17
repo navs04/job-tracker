@@ -12,6 +12,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import Modal from "../components/ui/Modal";
 import ApplicationForm from "../components/applications/ApplicationForm";
 import FilterBar from "../components/applications/FilterBar";
+import { Link } from "react-router-dom";
 
 export default function Applications() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -108,7 +109,11 @@ export default function Applications() {
             <tbody className="divide-y divide-gray-100">
               {applications.map((app) => (
                 <tr key={app.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{app.company}</td>
+                   <td className="px-4 py-3 font-medium text-gray-900">
+                    <Link to={`/applications/${app.id}`} className="hover:underline">
+                    {app.company}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-gray-700">{app.jobTitle}</td>
                   <td className="px-4 py-3">
                     <span className="inline-block px-2 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 rounded-full">

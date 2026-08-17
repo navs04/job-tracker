@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/layout/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Applications from "./pages/Applications";
+import ApplicationDetail from "./pages/ApplicationDetail";
 
 function DashboardPlaceholder() {
   const { user, logout } = useAuth();
@@ -41,6 +42,14 @@ function App() {
                 <Applications />
               </ProtectedRoute>
             }
+          />
+          <Route
+          path="/applications/:id"
+          element={
+          <ProtectedRoute>
+            <ApplicationDetail />
+          </ProtectedRoute>
+          }
           />
           <Route path="/" element={<Login />} />
         </Routes>
