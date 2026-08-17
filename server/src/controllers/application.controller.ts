@@ -10,7 +10,8 @@ import {
 } from "../services/application.service";
 
 export async function getApplications(req: AuthRequest, res: Response) {
-  const applications = await listApplications(req.userId!);
+  const query = (req as any).validatedQuery ?? {};
+  const applications = await listApplications(req.userId!, query);
   res.json(applications);
 }
 

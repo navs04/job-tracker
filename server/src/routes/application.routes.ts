@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { requireAuth } from "../middleware/auth.middleware";
-import { validate } from "../middleware/validate";
+import { validate, validateQuery } from "../middleware/validate";
 import { createApplicationSchema, updateApplicationSchema } from "../validators/application.validators";
+import { listApplicationsQuerySchema } from "../validators/applicationQuery.validators";
 import {
   getApplications,
   getApplicationById,
@@ -12,10 +13,9 @@ import {
 
 const router = Router();
 
-// Every route in this file requires a valid access token
 router.use(requireAuth);
 
-router.get("/", getApplications);
+router.get("/", validateQuery(listApplicationsQuerySchema), getApplications);
 router.get("/:id", getApplicationById);
 router.post("/", validate(createApplicationSchema), postApplication);
 router.patch("/:id", validate(updateApplicationSchema), patchApplication);

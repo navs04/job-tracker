@@ -1,6 +1,16 @@
 import prisma from "../lib/prisma";
 import type { CreateApplicationInput, UpdateApplicationInput } from "../validators/application.validators";
-import type { ApplicationStatus } from "@prisma/client";
+import type { Prisma, ApplicationStatus, WorkMode, EmploymentType } from "@prisma/client";
+
+export interface ListApplicationsQuery {
+  search?: string;
+  status?: ApplicationStatus;
+  workMode?: WorkMode;
+  employmentType?: EmploymentType;
+  location?: string;
+  sortBy?: "createdAt" | "applicationDate" | "deadline" | "company";
+  sortOrder?: "asc" | "desc";
+}
 
 export class NotFoundError extends Error {
   constructor(message = "Application not found") {
@@ -8,10 +18,29 @@ export class NotFoundError extends Error {
   }
 }
 
-export async function listApplications(userId: string) {
+export async function listApplications(userId: string, query: ListApplicationsQuery) {
+  const where: Prisma.ApplicationWhereInput = { userId };
+
+  if (query.search) {
+    where.OR = [
+      { company: { contains: query.search, mode: "insensitive" } },
+      { jobTitle: { contains: query.search, mode: "insensitive" } },
+    ];
+  }
+
+  if (query.status) where.status = query.status;
+  if (query.workMode) where.workMode = query.workMode;
+  if (query.employmentType) where.employmentType = query.employmentType;
+  if (query.location) {
+    where.location = { contains: query.location, mode: "insensitive" };
+  }
+
+  const sortBy = query.sortBy ?? "createdAt";
+  const sortOrder = query.sortOrder ?? "desc";
+
   return prisma.application.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
+    where,
+    orderBy: { [sortBy]: sortOrder },
   });
 }
 
