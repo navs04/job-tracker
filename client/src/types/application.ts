@@ -55,6 +55,20 @@ export interface ApplicationDetail extends Application {
   interviews: Interview[];
 }
 
+export interface DashboardSummary {
+  totalApplications: number;
+  applicationsThisWeek: number;
+  applicationsThisMonth: number;
+  interviewsScheduled: number;
+  offers: number;
+  rejections: number;
+  successRate: number;
+  statusBreakdown: Partial<Record<ApplicationStatus, number>>;
+  recentApplications: Application[];
+  upcomingDeadlines: Application[];
+  upcomingInterviews: (Interview & { application: { company: string; jobTitle: string } })[];
+}
+
 export type ApplicationInput = Partial<Omit<Application, "id" | "createdAt" | "updatedAt">>;
 
 export const STATUS_LABELS: Record<ApplicationStatus, string> = {
