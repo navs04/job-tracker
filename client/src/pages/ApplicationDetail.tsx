@@ -7,6 +7,10 @@ import { formatDate } from "../lib/format";
 import StatusTimeline from "../components/applications/StatusTimeline";
 import Modal from "../components/ui/Modal";
 import ApplicationForm from "../components/applications/ApplicationForm";
+import { createInterview, updateInterview, deleteInterview, type InterviewInput } from "../api/interviews";
+import InterviewList from "../components/interviews/InterviewList";
+import InterviewForm from "../components/interviews/InterviewForm";
+import type { Interview } from "../types/application";
 
 export default function ApplicationDetail() {
   const { id } = useParams<{ id: string }>();
@@ -17,10 +21,23 @@ export default function ApplicationDetail() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isInterviewFormOpen, setIsInterviewFormOpen] = useState(false);
+  const [editingInterview, setEditingInterview] = useState<Interview | null>(null);
+
 
   useEffect(() => {
     if (id) loadApplication(id);
   }, [id]);
+
+  function openCreateInterview() {
+    setEditingInterview(null);
+    setIsInterviewFormOpen(true);
+  }
+
+  function openEditInterview(interview: Interview) {
+    setEditingInterview(interview);
+    setIsInterviewFormOpen(true);
+  }
 
   async function loadApplication(applicationId: string) {
     setIsLoading(true);
@@ -46,6 +63,23 @@ export default function ApplicationDetail() {
     if (!id) return;
     await deleteApplication(id);
     navigate("/applications");
+  }
+
+  async function handleInterviewSubmit(input: InterviewInput) {
+    if (!id) return;
+    if (editingInterview) {
+      await updateInterview(editingInterview.id, input);
+    } else {
+      await createInterview(id, input);
+    }
+    await loadApplication(id);
+    setIsInterviewFormOpen(false);
+  }
+
+  async function handleInterviewDelete(interviewId: string) {
+    if (!id) return;
+    await deleteInterview(interviewId);
+    await loadApplication(id);
   }
 
   if (isLoading) {
@@ -143,11 +177,14 @@ export default function ApplicationDetail() {
           </section>
 
           <section>
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Interviews</h2>
-            <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-500">
-              {application.interviews.length === 0
-                ? "No interviews scheduled yet."
-                : `${application.interviews.length} interview(s) — full tracking coming in Phase 7.`}
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-gray-900">Interviews</h2>
+              <button onClick={openCreateInterview} className="text-xs text-indigo-600 hover:underline font-medium">
+                + Add interview
+              </button>
+            </div>
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <InterviewList interviews={application.interviews} onEdit={openEditInterview} onDelete={handleInterviewDelete} />
             </div>
           </section>
         </div>
@@ -174,6 +211,18 @@ export default function ApplicationDetail() {
             Delete
           </button>
         </div>
+      </Modal>
+
+      <Modal
+      isOpen={isInterviewFormOpen}
+      onClose={() => setIsInterviewFormOpen(false)}
+      title={editingInterview ? "Edit interview" : "Add interview"}
+      >
+        <InterviewForm
+        initialData={editingInterview ?? undefined}
+        onSubmit={handleInterviewSubmit}
+        onCancel={() => setIsInterviewFormOpen(false)}
+        />
       </Modal>
     </div>
   );
