@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider} from "./context/AuthContext";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -7,6 +7,7 @@ import Applications from "./pages/Applications";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import Pipeline from "./pages/Pipeline";
 import Dashboard from "./pages/Dashboard";
+import Analytics from "./pages/Analytics";
 
 function App() {
   return (
@@ -46,6 +47,14 @@ function App() {
           <ProtectedRoute>
             <Pipeline />
             </ProtectedRoute>
+          }
+          />
+          <Route
+          path="/analytics"
+          element={
+          <ProtectedRoute>
+            <Analytics />
+          </ProtectedRoute>
           }
           />
         </Routes>
