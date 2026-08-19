@@ -8,6 +8,7 @@ import ApplicationDetail from "./pages/ApplicationDetail";
 import Pipeline from "./pages/Pipeline";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
+import Reminders from "./pages/Reminders";
 
 function App() {
   return (
@@ -54,6 +55,14 @@ function App() {
           element={
           <ProtectedRoute>
             <Analytics />
+          </ProtectedRoute>
+          }
+          />
+          <Route
+          path="/reminders"
+          element={
+          <ProtectedRoute>
+            <Reminders />
           </ProtectedRoute>
           }
           />
