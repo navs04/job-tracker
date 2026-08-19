@@ -6,6 +6,7 @@ import applicationRoutes from "./routes/application.routes";
 import interviewRoutes from "./routes/interview.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import analyticsRoutes from "./routes/analytics.routes";
+import remindersRoutes from "./routes/reminders.routes";
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.use("/api/applications", applicationRoutes);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/reminders", remindersRoutes);
 
 export default app;
