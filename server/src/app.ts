@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.routes";
 import applicationRoutes from "./routes/application.routes";
 import interviewRoutes from "./routes/interview.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
+import analyticsRoutes from "./routes/analytics.routes";
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 export default app;
