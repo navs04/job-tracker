@@ -61,7 +61,12 @@ export default function Pipeline() {
     if (!over) return;
 
     const applicationId = active.id as string;
-    const newStatus = over.id as ApplicationStatus;
+    const overIsColumn = PIPELINE_STATUSES.includes(over.id as ApplicationStatus);
+    const newStatus = overIsColumn
+    ? (over.id as ApplicationStatus)
+    : applications.find((a) => a.id === over.id)?.status;
+    
+    if (!newStatus) return;
 
     const application = applications.find((a) => a.id === applicationId);
     if (!application || application.status === newStatus) return;
