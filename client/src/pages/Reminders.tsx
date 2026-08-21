@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import type { RemindersSummary } from "../types/reminders";
 import { fetchReminders } from "../api/reminders";
 import { formatDate, formatDateTime } from "../lib/format";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function Reminders() {
   const [data, setData] = useState<RemindersSummary | null>(null);
@@ -16,8 +18,8 @@ export default function Reminders() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
-  if (loadError || !data) return <div className="p-8 text-red-600">{loadError}</div>;
+  if (isLoading) return <LoadingState label="Loading reminders..." />;
+  if (loadError || !data) return <ErrorState message={loadError ?? "Failed to load reminders"} />;
 
   const hasAnything = data.overdue.length > 0 || data.upcoming.length > 0;
 

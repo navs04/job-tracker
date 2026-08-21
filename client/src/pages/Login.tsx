@@ -1,4 +1,5 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
+import type {FormEvent} from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -35,8 +36,9 @@ export default function Login() {
           </div>
         )}
 
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
         <input
+          id="email"
           type="email"
           required
           value={email}
@@ -44,8 +46,9 @@ export default function Login() {
           className="w-full mb-4 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
 
-        <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
         <input
+          id="password"
           type="password"
           required
           value={password}

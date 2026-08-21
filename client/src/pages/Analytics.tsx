@@ -7,6 +7,8 @@ import type { AnalyticsSummary } from "../types/analytics";
 import { STATUS_LABELS } from "../types/application";
 import { fetchAnalytics } from "../api/analytics";
 import StatCard from "../components/dashboard/StatCard";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 const STATUS_COLORS: Record<string, string> = {
   SAVED: "#9CA3AF",
@@ -31,8 +33,8 @@ export default function Analytics() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
-  if (loadError || !data) return <div className="p-8 text-red-600">{loadError}</div>;
+  if (isLoading) return <LoadingState label="Loading analytics..." />;
+  if (loadError || !data) return <ErrorState message={loadError ?? "Failed to load analytics"} />;
 
   const hasData = data.applicationsOverTime.length > 0;
 

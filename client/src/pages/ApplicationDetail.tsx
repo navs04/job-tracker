@@ -11,6 +11,9 @@ import { createInterview, updateInterview, deleteInterview, type InterviewInput 
 import InterviewList from "../components/interviews/InterviewList";
 import InterviewForm from "../components/interviews/InterviewForm";
 import type { Interview } from "../types/application";
+import { notify } from "../lib/toast";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function ApplicationDetail() {
   const { id } = useParams<{ id: string }>();
@@ -54,46 +57,67 @@ export default function ApplicationDetail() {
 
   async function handleEditSubmit(input: ApplicationInput) {
     if (!id) return;
-    await updateApplication(id, input);
-    await loadApplication(id); // refetch to get updated statusHistory too
-    setIsEditOpen(false);
+    try{
+      await updateApplication(id, input);
+      await loadApplication(id); // refetch to get updated statusHistory too
+      setIsEditOpen(false);
+      notify.success("Application edited");
+    } catch{
+      notify.error("Failed to edit application");
+    }
   }
 
   async function handleDelete() {
     if (!id) return;
-    await deleteApplication(id);
-    navigate("/applications");
+    try{
+      await deleteApplication(id);
+      navigate("/applications");
+      notify.success("Application deleted");
+    } catch{
+      notify.error("Failed to delete application");
+    }
   }
 
   async function handleInterviewSubmit(input: InterviewInput) {
     if (!id) return;
-    if (editingInterview) {
-      await updateInterview(editingInterview.id, input);
-    } else {
-      await createInterview(id, input);
+    try{
+      if (editingInterview) {
+        await updateInterview(editingInterview.id, input);
+        notify.success("Interview updated");
+      } else {
+        await createInterview(id, input);
+        notify.success("Interview created");
+      }
+      await loadApplication(id);
+      setIsInterviewFormOpen(false);
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || "Failed to save interview");
     }
-    await loadApplication(id);
-    setIsInterviewFormOpen(false);
   }
 
   async function handleInterviewDelete(interviewId: string) {
     if (!id) return;
-    await deleteInterview(interviewId);
-    await loadApplication(id);
+    try{
+      await deleteInterview(interviewId);
+      await loadApplication(id);
+      notify.success("Interview deleted");
+    } catch{
+      notify.error("Failed to delete interview");
+    }
   }
 
   if (isLoading) {
-    return <div className="p-8 text-gray-500">Loading...</div>;
+    return <LoadingState label="Loading application..." />;
   }
 
   if (loadError || !application) {
     return (
-      <div className="p-8">
-        <p className="text-red-600 mb-4">{loadError}</p>
-        <Link to="/applications" className="text-indigo-600 hover:underline">
-          Back to applications
-        </Link>
-      </div>
+    <div className="p-8">
+      <ErrorState message={loadError ?? "Application not found"} />
+      <Link to="/applications" className="text-indigo-600 hover:underline mt-4 inline-block">
+        Back to applications
+      </Link>
+    </div>
     );
   }
 

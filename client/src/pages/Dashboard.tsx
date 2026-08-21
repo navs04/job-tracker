@@ -5,13 +5,13 @@ import { STATUS_LABELS } from "../types/application";
 import { fetchDashboardSummary } from "../api/dashboard";
 import { formatDate, formatDateTime } from "../lib/format";
 import StatCard from "../components/dashboard/StatCard";
-import { useAuth } from "../context/AuthContext";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function Dashboard() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const { logout } = useAuth();
 
 
   useEffect(() => {
@@ -21,8 +21,8 @@ export default function Dashboard() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  if (isLoading) return <div className="p-8 text-gray-500">Loading...</div>;
-  if (loadError || !summary) return <div className="p-8 text-red-600">{loadError}</div>;
+  if (isLoading) return <LoadingState label="Loading dashboard..." />;
+  if (loadError || !summary) return <ErrorState message={loadError ?? "Failed to load dashboard"} />;
 
   const statusOrder: (keyof typeof STATUS_LABELS)[] = [
     "SAVED", "APPLIED", "ONLINE_ASSESSMENT", "INTERVIEW", "FINAL_ROUND", "OFFER", "REJECTED", "WITHDRAWN",
@@ -32,8 +32,6 @@ export default function Dashboard() {
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
-
-      <button onClick={logout} className="text-sm text-gray-500 hover:text-gray-700">Log out</button>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Total Applications" value={summary.totalApplications} />

@@ -13,6 +13,10 @@ import Modal from "../components/ui/Modal";
 import ApplicationForm from "../components/applications/ApplicationForm";
 import FilterBar from "../components/applications/FilterBar";
 import { Link } from "react-router-dom";
+import { notify } from "../lib/toast";
+import LoadingState from "../components/ui/LoadingState";
+import EmptyState from "../components/ui/EmptyState";
+import ErrorState from "../components/ui/ErrorState";
 
 export default function Applications() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -54,22 +58,32 @@ export default function Applications() {
   }
 
   async function handleFormSubmit(input: ApplicationInput) {
-    if (editingApplication) {
-      const updated = await updateApplication(editingApplication.id, input);
-      setApplications((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
-    } else {
-      const created = await createApplication(input);
-      // Instead of manually inserting, just reload so it respects current filters/sort
-      loadApplications();
+    try {
+      if (editingApplication) {
+        const updated = await updateApplication(editingApplication.id, input);
+        setApplications((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+        notify.success("Application updated");
+      } else {
+        await createApplication(input);
+        loadApplications();
+        notify.success("Application added");
+      }
+      setIsFormOpen(false);
+    } catch (err: any) {
+      notify.error(err.response?.data?.error || "Failed to save application");
     }
-    setIsFormOpen(false);
   }
 
   async function handleConfirmDelete() {
     if (!deletingId) return;
-    await deleteApplication(deletingId);
-    setApplications((prev) => prev.filter((a) => a.id !== deletingId));
-    setDeletingId(null);
+    try {
+      await deleteApplication(deletingId);
+      setApplications((prev) => prev.filter((a) => a.id !== deletingId));
+      setDeletingId(null);
+      notify.success("Application deleted");
+    } catch {
+      notify.error("Failed to delete application");
+    }
   }
 
   return (
@@ -83,15 +97,18 @@ export default function Applications() {
 
       <FilterBar filters={filters} onChange={setFilters} />
 
-      {isLoading && <p className="text-gray-500">Loading...</p>}
-      {loadError && <p className="text-red-600">{loadError}</p>}
+      {isLoading && <LoadingState label="Loading applications..." />}
+      {loadError && <ErrorState message={loadError} onRetry={loadApplications} />}
 
       {!isLoading && !loadError && applications.length === 0 && (
-        <div className="text-center py-16 text-gray-500 border border-dashed border-gray-300 rounded-lg">
-          {filters.search || filters.status || filters.workMode || filters.employmentType
-            ? "No applications match your filters."
-            : 'No applications yet. Click "Add application" to create your first one.'}
-        </div>
+        <EmptyState
+        message={
+          filters.search || filters.status || filters.workMode || filters.employmentType
+          ? "No applications match your filters."
+          : "No applications yet."
+        }
+        action={{ label: "+ Add your first application", onClick: openCreateForm }}
+        />
       )}
 
       {!isLoading && applications.length > 0 && (

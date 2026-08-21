@@ -14,6 +14,8 @@ import { STATUS_LABELS } from "../types/application";
 import { fetchApplications, updateApplication } from "../api/applications";
 import KanbanColumn from "../components/pipeline/KanbanColumn";
 import KanbanCard from "../components/pipeline/KanbanCard";
+import { notify } from "../lib/toast";
+import LoadingState from "../components/ui/LoadingState";
 
 const PIPELINE_STATUSES: ApplicationStatus[] = [
   "SAVED",
@@ -30,7 +32,6 @@ export default function Pipeline() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeApplication, setActiveApplication] = useState<Application | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -79,28 +80,21 @@ export default function Pipeline() {
 
     try {
       await updateApplication(applicationId, { status: newStatus });
+      notify.success("Moved to " + STATUS_LABELS[newStatus])
     } catch {
       setApplications((prev) =>
         prev.map((a) => (a.id === applicationId ? { ...a, status: previousStatus } : a))
       );
-      setErrorMessage("Failed to update status — please try again.");
-      setTimeout(() => setErrorMessage(null), 3000);
+      notify.error("Failed to update status — please try again.");
     }
   }
 
-  if (isLoading) {
-    return <div className="p-8 text-gray-500">Loading...</div>;
-  }
+
+  if (isLoading) return <LoadingState label="Loading pipeline..." />;
 
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Pipeline</h1>
-
-      {errorMessage && (
-        <div className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2 inline-block">
-          {errorMessage}
-        </div>
-      )}
 
       <DndContext
         sensors={sensors}
