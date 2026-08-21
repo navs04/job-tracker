@@ -1,4 +1,5 @@
-import { useState, FormEvent } from "react";
+import { useState} from "react";
+import type { FormEvent } from "react";
 import type { Interview } from "../../types/application";
 import type { InterviewInput } from "../../api/interviews";
 
@@ -72,8 +73,8 @@ export default function InterviewForm({ initialData, onSubmit, onCancel }: Inter
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Round *</label>
-          <input required value={round} onChange={(e) => setRound(e.target.value)} className={inputClass} placeholder="e.g. Round 1" />
+          <label htmlFor="round" className={labelClass}>Round *</label>
+          <input id="round" required value={round} onChange={(e) => setRound(e.target.value)} className={inputClass} placeholder="e.g. Round 1" />
         </div>
         <div>
           <label className={labelClass}>Type</label>
@@ -86,8 +87,9 @@ export default function InterviewForm({ initialData, onSubmit, onCancel }: Inter
       </div>
 
       <div>
-        <label className={labelClass}>Date & time *</label>
+        <label htmlFor="scheduledAt" className={labelClass}>Date & time *</label>
         <input
+          id="scheduledAt"
           type="datetime-local"
           required
           value={scheduledAt}
@@ -98,8 +100,8 @@ export default function InterviewForm({ initialData, onSubmit, onCancel }: Inter
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Interviewer</label>
-          <input value={interviewer} onChange={(e) => setInterviewer(e.target.value)} className={inputClass} />
+          <label htmlFor="interviewer" className={labelClass}>Interviewer</label>
+          <input id="interviewer" value={interviewer} onChange={(e) => setInterviewer(e.target.value)} className={inputClass} />
         </div>
         <div>
           <label className={labelClass}>Outcome</label>
@@ -112,8 +114,8 @@ export default function InterviewForm({ initialData, onSubmit, onCancel }: Inter
       </div>
 
       <div>
-        <label className={labelClass}>Meeting link</label>
-        <input value={meetingLink} onChange={(e) => setMeetingLink(e.target.value)} className={inputClass} placeholder="https://..." />
+        <label htmlFor="meetingLink" className={labelClass}>Meeting link</label>
+        <input id="meetingLink" value={meetingLink} onChange={(e) => setMeetingLink(e.target.value)} className={inputClass} placeholder="https://..." />
       </div>
 
       <div>

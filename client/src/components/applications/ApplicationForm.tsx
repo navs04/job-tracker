@@ -1,4 +1,5 @@
-import { useState, FormEvent } from "react";
+import { useState} from "react";
+import type { FormEvent } from "react";
 import type { Application, ApplicationInput, ApplicationStatus, WorkMode, EmploymentType } from "../../types/application";
 import { STATUS_LABELS } from "../../types/application";
 
@@ -67,24 +68,24 @@ export default function ApplicationForm({ initialData, onSubmit, onCancel }: App
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Company *</label>
-          <input required value={company} onChange={(e) => setCompany(e.target.value)} className={inputClass} />
+          <label htmlFor="company" className={labelClass}>Company *</label>
+          <input id="company" required value={company} onChange={(e) => setCompany(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Job Title *</label>
-          <input required value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} className={inputClass} />
+          <label htmlFor="jobTitle" className={labelClass}>Job Title *</label>
+          <input id="jobTitle" required value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} className={inputClass} />
         </div>
       </div>
 
       <div>
-        <label className={labelClass}>Job URL</label>
-        <input value={jobUrl} onChange={(e) => setJobUrl(e.target.value)} className={inputClass} placeholder="https://..." />
+        <label htmlFor="jobUrl" className={labelClass}>Job URL</label>
+        <input id="jobUrl" value={jobUrl} onChange={(e) => setJobUrl(e.target.value)} className={inputClass} placeholder="https://..." />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Location</label>
-          <input value={location} onChange={(e) => setLocation(e.target.value)} className={inputClass} />
+          <label htmlFor="location" className={labelClass}>Location</label>
+          <input id="location" value={location} onChange={(e) => setLocation(e.target.value)} className={inputClass} />
         </div>
         <div>
           <label className={labelClass}>Work Mode</label>
@@ -124,18 +125,18 @@ export default function ApplicationForm({ initialData, onSubmit, onCancel }: App
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Application Date</label>
-          <input type="date" value={applicationDate} onChange={(e) => setApplicationDate(e.target.value)} className={inputClass} />
+          <label htmlFor="applicationDate" className={labelClass}>Application Date</label>
+          <input id="applicationDate" type="date" value={applicationDate} onChange={(e) => setApplicationDate(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Deadline</label>
-          <input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className={inputClass} />
+          <label htmlFor="deadline" className={labelClass}>Deadline</label>
+          <input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className={inputClass} />
         </div>
       </div>
 
       <div>
-        <label className={labelClass}>Source</label>
-        <input value={source} onChange={(e) => setSource(e.target.value)} className={inputClass} placeholder="LinkedIn, Referral, ..." />
+        <label htmlFor="source" className={labelClass}>Source</label>
+        <input id="source" value={source} onChange={(e) => setSource(e.target.value)} className={inputClass} placeholder="LinkedIn, Referral, ..." />
       </div>
 
       <div>
