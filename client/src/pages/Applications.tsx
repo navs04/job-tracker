@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Plus, FolderOpen } from "lucide-react";
 import type { Application, ApplicationInput } from "../types/application";
-import { STATUS_LABELS } from "../types/application";
 import {
   fetchApplications,
   createApplication,
@@ -9,14 +10,16 @@ import {
   type ApplicationFilters,
 } from "../api/applications";
 import { useDebounce } from "../hooks/useDebounce";
-import Modal from "../components/ui/Modal";
-import ApplicationForm from "../components/applications/ApplicationForm";
-import FilterBar from "../components/applications/FilterBar";
-import { Link } from "react-router-dom";
+import { formatDate } from "../lib/format";
 import { notify } from "../lib/toast";
+import Modal from "../components/ui/Modal";
+import Button from "../components/ui/Button";
+import Badge from "../components/ui/Badge";
 import LoadingState from "../components/ui/LoadingState";
 import EmptyState from "../components/ui/EmptyState";
 import ErrorState from "../components/ui/ErrorState";
+import ApplicationForm from "../components/applications/ApplicationForm";
+import FilterBar from "../components/applications/FilterBar";
 
 export default function Applications() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -30,11 +33,11 @@ export default function Applications() {
   const [editingApplication, setEditingApplication] = useState<Application | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-   useEffect(() => {
+  useEffect(() => {
     loadApplications();
   }, [debouncedSearch, filters.status, filters.workMode, filters.employmentType, filters.location, filters.sortBy, filters.sortOrder]);
 
-   async function loadApplications() {
+  async function loadApplications() {
     setIsLoading(true);
     setLoadError(null);
     try {
@@ -86,13 +89,19 @@ export default function Applications() {
     }
   }
 
+  const hasActiveFilters = !!(filters.search || filters.status || filters.workMode || filters.employmentType);
+
   return (
-     <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
-        <button onClick={openCreateForm} className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
-          + Add application
-        </button>
+    <div className="p-6 md:p-8 max-w-6xl mx-auto">
+      <div className="flex items-center justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink tracking-tight">Applications</h1>
+          <p className="text-sm text-muted mt-1">{applications.length} total</p>
+        </div>
+        <Button variant="primary" onClick={openCreateForm} className="flex items-center gap-1.5 shrink-0">
+          <Plus size={15} strokeWidth={2.5} />
+          Add application
+        </Button>
       </div>
 
       <FilterBar filters={filters} onChange={setFilters} />
@@ -102,47 +111,52 @@ export default function Applications() {
 
       {!isLoading && !loadError && applications.length === 0 && (
         <EmptyState
-        message={
-          filters.search || filters.status || filters.workMode || filters.employmentType
-          ? "No applications match your filters."
-          : "No applications yet."
-        }
-        action={{ label: "+ Add your first application", onClick: openCreateForm }}
+          icon={FolderOpen}
+          message={hasActiveFilters ? "No applications match your filters" : "No applications yet"}
+          description={
+            hasActiveFilters
+              ? "Try adjusting your search or filters."
+              : "Start tracking your job search by adding your first application."
+          }
+          action={hasActiveFilters ? undefined : { label: "+ Add your first application", onClick: openCreateForm }}
         />
       )}
 
       {!isLoading && applications.length > 0 && (
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
+        <div className="bg-surface border border-border rounded-lg overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-left text-gray-600">
+            <thead className="bg-canvas text-left text-muted border-b border-border">
               <tr>
-                <th className="px-4 py-3 font-medium">Company</th>
-                <th className="px-4 py-3 font-medium">Job Title</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Location</th>
-                <th className="px-4 py-3 font-medium"></th>
+                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Company</th>
+                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Job Title</th>
+                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Status</th>
+                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Location</th>
+                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Applied</th>
+                <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {applications.map((app) => (
-                <tr key={app.id} className="hover:bg-gray-50">
-                   <td className="px-4 py-3 font-medium text-gray-900">
-                    <Link to={`/applications/${app.id}`} className="hover:underline">
-                    {app.company}
+                <tr key={app.id} className="group hover:bg-canvas transition-colors duration-150">
+                  <td className="px-4 py-3">
+                    <Link to={`/applications/${app.id}`} className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-md bg-accent-bg flex items-center justify-center text-xs font-semibold text-accent shrink-0">
+                        {app.company[0]?.toUpperCase()}
+                      </div>
+                      <span className="font-medium text-ink group-hover:text-accent transition-colors duration-150">
+                        {app.company}
+                      </span>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-700">{app.jobTitle}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-block px-2 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 rounded-full">
-                      {STATUS_LABELS[app.status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-500">{app.location || "—"}</td>
-                  <td className="px-4 py-3 text-right space-x-3">
-                    <button onClick={() => openEditForm(app)} className="text-indigo-600 hover:underline">
+                  <td className="px-4 py-3 text-ink/80">{app.jobTitle}</td>
+                  <td className="px-4 py-3"><Badge status={app.status} /></td>
+                  <td className="px-4 py-3 text-muted">{app.location || "—"}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-faint">{formatDate(app.applicationDate)}</td>
+                  <td className="px-4 py-3 text-right space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                    <button onClick={() => openEditForm(app)} className="text-accent hover:underline text-xs font-medium">
                       Edit
                     </button>
-                    <button onClick={() => setDeletingId(app.id)} className="text-red-600 hover:underline">
+                    <button onClick={() => setDeletingId(app.id)} className="text-danger hover:underline text-xs font-medium">
                       Delete
                     </button>
                   </td>
@@ -166,16 +180,12 @@ export default function Applications() {
       </Modal>
 
       <Modal isOpen={!!deletingId} onClose={() => setDeletingId(null)} title="Delete application?">
-        <p className="text-sm text-gray-600 mb-4">
-          This will permanently delete this application and cannot be undone.
-        </p>
+        <p className="text-sm text-muted mb-4">This will permanently delete this application and cannot be undone.</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setDeletingId(null)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-            Cancel
-          </button>
-          <button onClick={handleConfirmDelete} className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md">
+          <Button variant="secondary" onClick={() => setDeletingId(null)}>Cancel</Button>
+          <Button variant="danger" onClick={handleConfirmDelete} className="!bg-danger !text-white !border-danger hover:!bg-danger/90">
             Delete
-          </button>
+          </Button>
         </div>
       </Modal>
     </div>
