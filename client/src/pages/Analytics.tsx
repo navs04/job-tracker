@@ -100,7 +100,7 @@ export default function Analytics() {
             <section className="bg-surface border border-border rounded-lg p-5">
               <h2 className="text-sm font-semibold text-ink mb-1">Applications by status</h2>
               <p className="text-xs text-faint mb-4">Current distribution</p>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
                 <ResponsiveContainer width="55%" height={200}>
                   <PieChart>
                     <Pie data={data.applicationsByStatus} dataKey="count" nameKey="status" cx="50%" cy="50%" innerRadius={45} outerRadius={72} paddingAngle={2}>

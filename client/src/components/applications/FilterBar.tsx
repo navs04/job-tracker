@@ -22,7 +22,7 @@ export default function FilterBar({ filters, onChange }: FilterBarProps) {
 
   return (
     <div className="bg-surface border border-border rounded-lg p-3 flex flex-wrap items-center gap-2 mb-5">
-      <div className="relative flex-1 min-w-[200px]">
+      <div className="relative w-full sm:flex-1 sm:min-w-[200px]">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-faint" strokeWidth={2} />
         <Input
           placeholder="Search company or job title..."

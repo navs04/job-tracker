@@ -51,7 +51,7 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         <StatCard label="Total" value={summary.totalApplications} icon={Briefcase} accent="accent" />
         <StatCard
           label="This Month"

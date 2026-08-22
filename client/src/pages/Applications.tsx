@@ -123,48 +123,72 @@ export default function Applications() {
       )}
 
       {!isLoading && applications.length > 0 && (
-        <div className="bg-surface border border-border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-canvas text-left text-muted border-b border-border">
-              <tr>
-                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Company</th>
-                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Job Title</th>
-                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Status</th>
-                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Location</th>
-                <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Applied</th>
-                <th className="px-4 py-2.5"></th>
-              </tr>
-            </thead>
+        <>
+        <div className="hidden md:block bg-surface border border-border rounded-lg overflow-hidden">
+      <table className="w-full text-sm">
+        <thead className="bg-canvas text-left text-muted border-b border-border">
+          <tr>
+            <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Company</th>
+            <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Job Title</th>
+            <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Status</th>
+            <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Location</th>
+            <th className="px-4 py-2.5 font-medium text-xs uppercase tracking-wide">Applied</th>
+            <th className="px-4 py-2.5"></th>
+          </tr>
+        </thead>
             <tbody className="divide-y divide-border">
-              {applications.map((app) => (
-                <tr key={app.id} className="group hover:bg-canvas transition-colors duration-150">
-                  <td className="px-4 py-3">
-                    <Link to={`/applications/${app.id}`} className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-md bg-accent-bg flex items-center justify-center text-xs font-semibold text-accent shrink-0">
-                        {app.company[0]?.toUpperCase()}
-                      </div>
-                      <span className="font-medium text-ink group-hover:text-accent transition-colors duration-150">
-                        {app.company}
-                      </span>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-ink/80">{app.jobTitle}</td>
-                  <td className="px-4 py-3"><Badge status={app.status} /></td>
-                  <td className="px-4 py-3 text-muted">{app.location || "—"}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-faint">{formatDate(app.applicationDate)}</td>
-                  <td className="px-4 py-3 text-right space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                    <button onClick={() => openEditForm(app)} className="text-accent hover:underline text-xs font-medium">
-                      Edit
-                    </button>
-                    <button onClick={() => setDeletingId(app.id)} className="text-danger hover:underline text-xs font-medium">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+          {applications.map((app) => (
+            <tr key={app.id} className="group hover:bg-canvas transition-colors duration-150">
+              <td className="px-4 py-3">
+                <Link to={`/applications/${app.id}`} className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-md bg-accent-bg flex items-center justify-center text-xs font-semibold text-accent shrink-0">
+                    {app.company[0]?.toUpperCase()}
+                  </div>
+                  <span className="font-medium text-ink group-hover:text-accent transition-colors duration-150">
+                    {app.company}
+                  </span>
+                </Link>
+              </td>
+              <td className="px-4 py-3 text-ink/80">{app.jobTitle}</td>
+              <td className="px-4 py-3"><Badge status={app.status} /></td>
+              <td className="px-4 py-3 text-muted">{app.location || "—"}</td>
+              <td className="px-4 py-3 font-mono text-xs text-faint">{formatDate(app.applicationDate)}</td>
+              <td className="px-4 py-3 text-right space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <button onClick={() => openEditForm(app)} className="text-accent hover:underline text-xs font-medium">Edit</button>
+                <button onClick={() => setDeletingId(app.id)} className="text-danger hover:underline text-xs font-medium">Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
           </table>
         </div>
+
+    <div className="md:hidden space-y-3">
+      {applications.map((app) => (
+        <div key={app.id} className="bg-surface border border-border rounded-lg p-4">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <Link to={`/applications/${app.id}`} className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-md bg-accent-bg flex items-center justify-center text-xs font-semibold text-accent shrink-0">
+                {app.company[0]?.toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-ink truncate">{app.company}</p>
+                <p className="text-xs text-muted truncate">{app.jobTitle}</p>
+              </div>
+            </Link>
+            <Badge status={app.status} />
+          </div>
+          <div className="flex items-center justify-between text-xs text-faint mt-3 pt-3 border-t border-border">
+            <span>{app.location || "—"} · <span className="font-mono">{formatDate(app.applicationDate)}</span></span>
+            <div className="flex gap-3">
+              <button onClick={() => openEditForm(app)} className="text-accent font-medium">Edit</button>
+              <button onClick={() => setDeletingId(app.id)} className="text-danger font-medium">Delete</button>
+            </div>
+             </div>
+        </div>
+      ))}
+    </div>
+    </>
       )}
 
       <Modal
