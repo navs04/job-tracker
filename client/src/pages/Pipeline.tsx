@@ -12,20 +12,13 @@ import {
 import type { Application, ApplicationStatus } from "../types/application";
 import { STATUS_LABELS } from "../types/application";
 import { fetchApplications, updateApplication } from "../api/applications";
+import { notify } from "../lib/toast";
 import KanbanColumn from "../components/pipeline/KanbanColumn";
 import KanbanCard from "../components/pipeline/KanbanCard";
-import { notify } from "../lib/toast";
 import LoadingState from "../components/ui/LoadingState";
 
 const PIPELINE_STATUSES: ApplicationStatus[] = [
-  "SAVED",
-  "APPLIED",
-  "ONLINE_ASSESSMENT",
-  "INTERVIEW",
-  "FINAL_ROUND",
-  "OFFER",
-  "REJECTED",
-  "WITHDRAWN",
+  "SAVED", "APPLIED", "ONLINE_ASSESSMENT", "INTERVIEW", "FINAL_ROUND", "OFFER", "REJECTED", "WITHDRAWN",
 ];
 
 export default function Pipeline() {
@@ -33,9 +26,7 @@ export default function Pipeline() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeApplication, setActiveApplication] = useState<Application | null>(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   useEffect(() => {
     load();
@@ -64,44 +55,36 @@ export default function Pipeline() {
     const applicationId = active.id as string;
     const overIsColumn = PIPELINE_STATUSES.includes(over.id as ApplicationStatus);
     const newStatus = overIsColumn
-    ? (over.id as ApplicationStatus)
-    : applications.find((a) => a.id === over.id)?.status;
-    
+      ? (over.id as ApplicationStatus)
+      : applications.find((a) => a.id === over.id)?.status;
+
     if (!newStatus) return;
 
     const application = applications.find((a) => a.id === applicationId);
     if (!application || application.status === newStatus) return;
 
-    // Optimistic update: reflect the move immediately, roll back on failure
     const previousStatus = application.status;
-    setApplications((prev) =>
-      prev.map((a) => (a.id === applicationId ? { ...a, status: newStatus } : a))
-    );
+    setApplications((prev) => prev.map((a) => (a.id === applicationId ? { ...a, status: newStatus } : a)));
 
     try {
       await updateApplication(applicationId, { status: newStatus });
-      notify.success("Moved to " + STATUS_LABELS[newStatus])
+      notify.success(`Moved to ${STATUS_LABELS[newStatus]}`);
     } catch {
-      setApplications((prev) =>
-        prev.map((a) => (a.id === applicationId ? { ...a, status: previousStatus } : a))
-      );
+      setApplications((prev) => prev.map((a) => (a.id === applicationId ? { ...a, status: previousStatus } : a)));
       notify.error("Failed to update status — please try again.");
     }
   }
 
-
   if (isLoading) return <LoadingState label="Loading pipeline..." />;
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Pipeline</h1>
+    <div className="p-6 md:p-8">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-ink tracking-tight">Pipeline</h1>
+        <p className="text-sm text-muted mt-1">Drag applications between stages to update their status.</p>
+      </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
+      <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex gap-4 overflow-x-auto pb-4">
           {PIPELINE_STATUSES.map((status) => (
             <KanbanColumn

@@ -1,6 +1,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { Application, ApplicationStatus } from "../../types/application";
+import { STATUS_STYLES } from "../../types/application";
 import KanbanCard from "./KanbanCard";
 
 interface KanbanColumnProps {
@@ -11,19 +12,21 @@ interface KanbanColumnProps {
 
 export default function KanbanColumn({ status, label, applications }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
+  const style = STATUS_STYLES[status];
 
   return (
     <div className="flex flex-col w-72 shrink-0">
-      <div className="flex items-center justify-between px-1 mb-2">
-        <h3 className="text-sm font-semibold text-gray-700">{label}</h3>
-        <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+      <div className="flex items-center gap-2 px-1 mb-2.5">
+        <span className={`w-1.5 h-1.5 rounded-full ${style.text.replace("text-", "bg-")}`} />
+        <h3 className="text-sm font-semibold text-ink">{label}</h3>
+        <span className="font-mono text-xs text-faint ml-auto bg-canvas rounded px-1.5 py-0.5">
           {applications.length}
         </span>
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-[200px] rounded-lg p-2 space-y-2 border-2 border-dashed transition-colors ${
-          isOver ? "border-indigo-400 bg-indigo-50" : "border-transparent bg-gray-50"
+        className={`flex-1 min-h-[240px] rounded-lg p-2 space-y-2 border-2 border-dashed transition-colors duration-150 ${
+          isOver ? "border-accent bg-accent-bg/40" : "border-transparent bg-canvas/60"
         }`}
       >
         <SortableContext items={applications.map((a) => a.id)} strategy={verticalListSortingStrategy}>
@@ -32,7 +35,7 @@ export default function KanbanColumn({ status, label, applications }: KanbanColu
           ))}
         </SortableContext>
         {applications.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-6">Drop here</p>
+          <p className="text-xs text-faint text-center py-8">No applications</p>
         )}
       </div>
     </div>
