@@ -3,11 +3,11 @@ import Sidebar from "./Sidebar";
 
 export default function AppLayout() {
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-        <Sidebar />
-        <main className="flex-1 min-w-0">
-            <Outlet />
-        </main>
+    <div className="flex flex-col md:flex-row min-h-screen bg-canvas">
+      <Sidebar />
+      <main className="flex-1 min-w-0">
+        <Outlet />
+      </main>
     </div>
   );
 }
