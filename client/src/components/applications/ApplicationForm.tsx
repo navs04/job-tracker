@@ -1,7 +1,11 @@
-import { useState} from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
+import { AlertCircle } from "lucide-react";
 import type { Application, ApplicationInput, ApplicationStatus, WorkMode, EmploymentType } from "../../types/application";
 import { STATUS_LABELS } from "../../types/application";
+import Input from "../ui/Input";
+import Select from "../ui/Select";
+import Button from "../ui/Button";
 
 interface ApplicationFormProps {
   initialData?: Application;
@@ -21,9 +25,7 @@ export default function ApplicationForm({ initialData, onSubmit, onCancel }: App
   const [applicationDate, setApplicationDate] = useState(
     initialData?.applicationDate ? initialData.applicationDate.slice(0, 10) : ""
   );
-  const [deadline, setDeadline] = useState(
-    initialData?.deadline ? initialData.deadline.slice(0, 10) : ""
-  );
+  const [deadline, setDeadline] = useState(initialData?.deadline ? initialData.deadline.slice(0, 10) : "");
   const [notes, setNotes] = useState(initialData?.notes ?? "");
 
   const [error, setError] = useState<string | null>(null);
@@ -35,8 +37,7 @@ export default function ApplicationForm({ initialData, onSubmit, onCancel }: App
     setIsSubmitting(true);
     try {
       await onSubmit({
-        company,
-        jobTitle,
+        company, jobTitle,
         jobUrl: jobUrl || null,
         location: location || null,
         workMode: workMode || null,
@@ -54,14 +55,13 @@ export default function ApplicationForm({ initialData, onSubmit, onCancel }: App
     }
   }
 
-  const inputClass =
-    "w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500";
-  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+  const labelClass = "block text-xs font-medium text-muted mb-1.5";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+        <div className="flex items-start gap-2 text-sm text-danger bg-danger-bg border border-danger/20 rounded-md px-3 py-2.5">
+          <AlertCircle size={15} strokeWidth={2} className="shrink-0 mt-0.5" />
           {error}
         </div>
       )}
@@ -69,92 +69,88 @@ export default function ApplicationForm({ initialData, onSubmit, onCancel }: App
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="company" className={labelClass}>Company *</label>
-          <input id="company" required value={company} onChange={(e) => setCompany(e.target.value)} className={inputClass} />
+          <Input id="company" required value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Acme Corp" />
         </div>
         <div>
           <label htmlFor="jobTitle" className={labelClass}>Job Title *</label>
-          <input id="jobTitle" required value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} className={inputClass} />
+          <Input id="jobTitle" required value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Software Engineer Intern" />
         </div>
       </div>
 
       <div>
         <label htmlFor="jobUrl" className={labelClass}>Job URL</label>
-        <input id="jobUrl" value={jobUrl} onChange={(e) => setJobUrl(e.target.value)} className={inputClass} placeholder="https://..." />
+        <Input id="jobUrl" value={jobUrl} onChange={(e) => setJobUrl(e.target.value)} placeholder="https://..." />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="location" className={labelClass}>Location</label>
-          <input id="location" value={location} onChange={(e) => setLocation(e.target.value)} className={inputClass} />
+          <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="San Francisco, CA" />
         </div>
         <div>
-          <label className={labelClass}>Work Mode</label>
-          <select value={workMode} onChange={(e) => setWorkMode(e.target.value as WorkMode | "")} className={inputClass}>
+          <label htmlFor="workMode" className={labelClass}>Work Mode</label>
+          <Select id="workMode" value={workMode} onChange={(e) => setWorkMode(e.target.value as WorkMode | "")} className="w-full">
             <option value="">—</option>
             <option value="REMOTE">Remote</option>
             <option value="HYBRID">Hybrid</option>
             <option value="ONSITE">On-site</option>
-          </select>
+          </Select>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Employment Type</label>
-          <select
-            value={employmentType}
-            onChange={(e) => setEmploymentType(e.target.value as EmploymentType | "")}
-            className={inputClass}
-          >
+          <label htmlFor="employmentType" className={labelClass}>Employment Type</label>
+          <Select id="employmentType" value={employmentType} onChange={(e) => setEmploymentType(e.target.value as EmploymentType | "")} className="w-full">
             <option value="">—</option>
             <option value="INTERNSHIP">Internship</option>
             <option value="FULL_TIME">Full-time</option>
             <option value="PART_TIME">Part-time</option>
             <option value="CONTRACT">Contract</option>
-          </select>
+          </Select>
         </div>
         <div>
-          <label className={labelClass}>Status</label>
-          <select value={status} onChange={(e) => setStatus(e.target.value as ApplicationStatus)} className={inputClass}>
+          <label htmlFor="status" className={labelClass}>Status</label>
+          <Select id="status" value={status} onChange={(e) => setStatus(e.target.value as ApplicationStatus)} className="w-full">
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>{label}</option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="applicationDate" className={labelClass}>Application Date</label>
-          <input id="applicationDate" type="date" value={applicationDate} onChange={(e) => setApplicationDate(e.target.value)} className={inputClass} />
+          <Input id="applicationDate" type="date" value={applicationDate} onChange={(e) => setApplicationDate(e.target.value)} />
         </div>
         <div>
           <label htmlFor="deadline" className={labelClass}>Deadline</label>
-          <input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className={inputClass} />
+          <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
         </div>
       </div>
 
       <div>
         <label htmlFor="source" className={labelClass}>Source</label>
-        <input id="source" value={source} onChange={(e) => setSource(e.target.value)} className={inputClass} placeholder="LinkedIn, Referral, ..." />
+        <Input id="source" value={source} onChange={(e) => setSource(e.target.value)} placeholder="LinkedIn, Referral, ..." />
       </div>
 
       <div>
-        <label className={labelClass}>Notes</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={inputClass} />
+        <label htmlFor="notes" className={labelClass}>Notes</label>
+        <textarea
+          id="notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={3}
+          className="w-full px-3 py-2 border border-border rounded-md text-sm text-ink placeholder:text-faint bg-white transition-shadow duration-150 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
+        />
       </div>
 
       <div className="flex justify-end gap-3 pt-2">
-        <button type="button" onClick={onCancel} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md disabled:opacity-50"
-        >
+        <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" variant="primary" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : initialData ? "Save changes" : "Add application"}
-        </button>
+        </Button>
       </div>
     </form>
   );
