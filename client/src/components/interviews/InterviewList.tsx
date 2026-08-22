@@ -1,11 +1,22 @@
+import { Video, User, FileText, ExternalLink, Pencil, Trash2, CalendarClock } from "lucide-react";
 import type { Interview } from "../../types/application";
 import { formatDateTime } from "../../lib/format";
 
-const OUTCOME_STYLES: Record<string, string> = {
-  PENDING: "bg-gray-100 text-gray-600",
-  PASSED: "bg-green-50 text-green-700",
-  FAILED: "bg-red-50 text-red-700",
-  CANCELLED: "bg-yellow-50 text-yellow-700",
+const OUTCOME_STYLES: Record<string, { text: string; bg: string }> = {
+  PENDING: { text: "text-muted", bg: "bg-canvas" },
+  PASSED: { text: "text-status-offer", bg: "bg-status-offer-bg" },
+  FAILED: { text: "text-status-rejected", bg: "bg-status-rejected-bg" },
+  CANCELLED: { text: "text-status-withdrawn", bg: "bg-status-withdrawn-bg" },
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  PHONE_SCREEN: "Phone Screen",
+  TECHNICAL: "Technical",
+  BEHAVIORAL: "Behavioral",
+  SYSTEM_DESIGN: "System Design",
+  ONSITE: "Onsite",
+  FINAL: "Final",
+  OTHER: "Other",
 };
 
 interface InterviewListProps {
@@ -16,43 +27,78 @@ interface InterviewListProps {
 
 export default function InterviewList({ interviews, onEdit, onDelete }: InterviewListProps) {
   if (interviews.length === 0) {
-    return <p className="text-sm text-gray-500">No interviews scheduled yet.</p>;
+    return (
+      <div className="text-center py-8">
+        <CalendarClock size={22} className="text-faint mx-auto mb-2" strokeWidth={1.5} />
+        <p className="text-sm text-faint">No interviews scheduled yet.</p>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-3">
-      {interviews.map((interview) => (
-        <div key={interview.id} className="border border-gray-200 rounded-md p-3">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">{interview.round}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{formatDateTime(interview.scheduledAt)}</p>
+      {interviews.map((interview) => {
+        const outcomeStyle = OUTCOME_STYLES[interview.outcome] ?? OUTCOME_STYLES.PENDING;
+        return (
+          <div key={interview.id} className="border border-border rounded-lg p-3.5 hover:border-ink/15 transition-colors duration-150">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="text-sm font-medium text-ink">{interview.round}</p>
+                <p className="text-xs text-muted">{TYPE_LABELS[interview.type] ?? interview.type}</p>
+              </div>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded ${outcomeStyle.bg} ${outcomeStyle.text}`}>
+                {interview.outcome}
+              </span>
             </div>
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${OUTCOME_STYLES[interview.outcome] ?? OUTCOME_STYLES.PENDING}`}>
-              {interview.outcome}
-            </span>
-          </div>
 
-          {interview.interviewer && (
-            <p className="text-xs text-gray-600 mt-2">Interviewer: {interview.interviewer}</p>
-          )}
-          {interview.meetingLink && (
-            <a href={interview.meetingLink} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 hover:underline mt-1 inline-block">
-              Meeting link →
-            </a>
-          )}
-          {interview.notes && <p className="text-xs text-gray-600 mt-2 whitespace-pre-wrap">{interview.notes}</p>}
+            <p className="font-mono text-xs text-faint mb-2.5">{formatDateTime(interview.scheduledAt)}</p>
 
-          <div className="flex gap-3 mt-2">
-            <button onClick={() => onEdit(interview)} className="text-xs text-indigo-600 hover:underline">
-              Edit
-            </button>
-            <button onClick={() => onDelete(interview.id)} className="text-xs text-red-600 hover:underline">
-              Delete
-            </button>
+            <div className="space-y-1.5">
+              {interview.interviewer && (
+                <div className="flex items-center gap-1.5 text-xs text-muted">
+                  <User size={12} strokeWidth={2} className="shrink-0" />
+                  {interview.interviewer}
+                </div>
+              )}
+              {interview.meetingLink && (
+                <a
+                  href={interview.meetingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-accent hover:underline w-fit"
+                >
+                  <Video size={12} strokeWidth={2} className="shrink-0" />
+                  Meeting link
+                  <ExternalLink size={10} strokeWidth={2} />
+                </a>
+              )}
+              {interview.notes && (
+                <div className="flex items-start gap-1.5 text-xs text-muted">
+                  <FileText size={12} strokeWidth={2} className="shrink-0 mt-0.5" />
+                  <span className="whitespace-pre-wrap">{interview.notes}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-3 pt-3 border-t border-border">
+              <button
+                onClick={() => onEdit(interview)}
+                className="flex items-center gap-1 text-xs text-accent hover:underline font-medium"
+              >
+                <Pencil size={11} strokeWidth={2} />
+                Edit
+              </button>
+              <button
+                onClick={() => onDelete(interview.id)}
+                className="flex items-center gap-1 text-xs text-danger hover:underline font-medium"
+              >
+                <Trash2 size={11} strokeWidth={2} />
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
