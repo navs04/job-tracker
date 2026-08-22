@@ -49,7 +49,7 @@ export async function getDashboardSummary(userId: string) {
       where: { application: { userId }, scheduledAt: { gte: now } },
       orderBy: { scheduledAt: "asc" },
       take: 5,
-      include: { application: { select: { company: true, jobTitle: true } } },
+      include: { application: { select: {  id: true, company: true, jobTitle: true } } },
     }),
   ]);
 
