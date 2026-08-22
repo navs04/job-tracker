@@ -1,1 +1,47 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Neutrals — slightly warm, not cold Tailwind gray */
+  --color-canvas: #FAFAF9;
+  --color-surface: #FFFFFF;
+  --color-border: #E7E5E2;
+  --color-ink: #1C1C1F;
+  --color-muted: #6B6B70;
+  --color-faint: #9B9B9E;
+
+  /* Primary accent — one confident indigo-violet */
+  --color-accent: #4F46E5;
+  --color-accent-hover: #4338CA;
+  --color-accent-bg: #EEF0FD;
+
+  /* Semantic status colors — muted, distinguishable */
+  --color-status-saved: #6B7280;
+  --color-status-saved-bg: #F3F4F6;
+  --color-status-applied: #2563EB;
+  --color-status-applied-bg: #EFF4FE;
+  --color-status-assessment: #7C3AED;
+  --color-status-assessment-bg: #F4F0FE;
+  --color-status-interview: #B45309;
+  --color-status-interview-bg: #FDF5E9;
+  --color-status-final: #C2410C;
+  --color-status-final-bg: #FDF1EA;
+  --color-status-offer: #15803D;
+  --color-status-offer-bg: #EDF7F0;
+  --color-status-rejected: #B91C1C;
+  --color-status-rejected-bg: #FBEEEE;
+  --color-status-withdrawn: #78716C;
+  --color-status-withdrawn-bg: #F5F4F3;
+
+  /* Feedback */
+  --color-danger: #DC2626;
+  --color-danger-bg: #FEF0EE;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+}
