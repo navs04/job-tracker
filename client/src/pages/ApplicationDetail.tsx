@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import type { ApplicationDetail as ApplicationDetailType, ApplicationInput } from "../types/application";
-import { STATUS_LABELS } from "../types/application";
+import { Pencil, Trash2, ExternalLink, Plus } from "lucide-react";
+import type { ApplicationDetail as ApplicationDetailType, ApplicationInput, Interview } from "../types/application";
 import { fetchApplication, updateApplication, deleteApplication } from "../api/applications";
-import { formatDate } from "../lib/format";
-import StatusTimeline from "../components/applications/StatusTimeline";
-import Modal from "../components/ui/Modal";
-import ApplicationForm from "../components/applications/ApplicationForm";
 import { createInterview, updateInterview, deleteInterview, type InterviewInput } from "../api/interviews";
+import { formatDate } from "../lib/format";
+import { notify } from "../lib/toast";
+import StatusTimeline from "../components/applications/StatusTimeline";
 import InterviewList from "../components/interviews/InterviewList";
 import InterviewForm from "../components/interviews/InterviewForm";
-import type { Interview } from "../types/application";
-import { notify } from "../lib/toast";
+import Modal from "../components/ui/Modal";
+import Button from "../components/ui/Button";
+import Badge from "../components/ui/Badge";
 import LoadingState from "../components/ui/LoadingState";
-import ErrorState from "../components/ui/ErrorState";
+import ApplicationForm from "../components/applications/ApplicationForm";
 
 export default function ApplicationDetail() {
   const { id } = useParams<{ id: string }>();
@@ -27,10 +27,44 @@ export default function ApplicationDetail() {
   const [isInterviewFormOpen, setIsInterviewFormOpen] = useState(false);
   const [editingInterview, setEditingInterview] = useState<Interview | null>(null);
 
-
   useEffect(() => {
     if (id) loadApplication(id);
   }, [id]);
+
+  async function loadApplication(applicationId: string) {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      setApplication(await fetchApplication(applicationId));
+    } catch (err: any) {
+      setLoadError(err.response?.status === 404 ? "Application not found" : "Failed to load application");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleEditSubmit(input: ApplicationInput) {
+    if (!id) return;
+    try {
+      await updateApplication(id, input);
+      await loadApplication(id);
+      setIsEditOpen(false);
+      notify.success("Application updated");
+    } catch {
+      notify.error("Failed to update application");
+    }
+  }
+
+  async function handleDelete() {
+    if (!id) return;
+    try {
+      await deleteApplication(id);
+      notify.success("Application deleted");
+      navigate("/applications");
+    } catch {
+      notify.error("Failed to delete application");
+    }
+  }
 
   function openCreateInterview() {
     setEditingInterview(null);
@@ -42,51 +76,15 @@ export default function ApplicationDetail() {
     setIsInterviewFormOpen(true);
   }
 
-  async function loadApplication(applicationId: string) {
-    setIsLoading(true);
-    setLoadError(null);
-    try {
-      const data = await fetchApplication(applicationId);
-      setApplication(data);
-    } catch (err: any) {
-      setLoadError(err.response?.status === 404 ? "Application not found" : "Failed to load application");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function handleEditSubmit(input: ApplicationInput) {
-    if (!id) return;
-    try{
-      await updateApplication(id, input);
-      await loadApplication(id); // refetch to get updated statusHistory too
-      setIsEditOpen(false);
-      notify.success("Application edited");
-    } catch{
-      notify.error("Failed to edit application");
-    }
-  }
-
-  async function handleDelete() {
-    if (!id) return;
-    try{
-      await deleteApplication(id);
-      navigate("/applications");
-      notify.success("Application deleted");
-    } catch{
-      notify.error("Failed to delete application");
-    }
-  }
-
   async function handleInterviewSubmit(input: InterviewInput) {
     if (!id) return;
-    try{
+    try {
       if (editingInterview) {
         await updateInterview(editingInterview.id, input);
         notify.success("Interview updated");
       } else {
         await createInterview(id, input);
-        notify.success("Interview created");
+        notify.success("Interview added");
       }
       await loadApplication(id);
       setIsInterviewFormOpen(false);
@@ -97,127 +95,140 @@ export default function ApplicationDetail() {
 
   async function handleInterviewDelete(interviewId: string) {
     if (!id) return;
-    try{
+    try {
       await deleteInterview(interviewId);
       await loadApplication(id);
       notify.success("Interview deleted");
-    } catch{
+    } catch {
       notify.error("Failed to delete interview");
     }
   }
 
-  if (isLoading) {
-    return <LoadingState label="Loading application..." />;
-  }
+  if (isLoading) return <LoadingState label="Loading application..." />;
 
   if (loadError || !application) {
     return (
-    <div className="p-8">
-      <ErrorState message={loadError ?? "Application not found"} />
-      <Link to="/applications" className="text-indigo-600 hover:underline mt-4 inline-block">
-        Back to applications
-      </Link>
-    </div>
+      <div className="p-8 text-center">
+        <p className="text-danger text-sm mb-3">{loadError}</p>
+        <Link to="/applications" className="text-sm text-accent hover:underline font-medium">
+          ← Back to applications
+        </Link>
+      </div>
     );
   }
 
-  const infoRow = (label: string, value: string) => (
+  const infoField = (label: string, value: string) => (
     <div>
-      <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</dt>
-      <dd className="text-sm text-gray-900 mt-0.5">{value || "—"}</dd>
+      <dt className="text-xs font-medium text-faint uppercase tracking-wide">{label}</dt>
+      <dd className="text-sm text-ink mt-0.5">{value || <span className="text-faint">—</span>}</dd>
     </div>
   );
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <Link to="/applications" className="text-sm text-indigo-600 hover:underline">
+    <div className="p-6 md:p-8 max-w-5xl mx-auto">
+      <Link to="/applications" className="text-sm text-muted hover:text-ink transition-colors duration-150">
         ← Back to applications
       </Link>
 
-      <div className="flex items-start justify-between mt-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{application.jobTitle}</h1>
-          <p className="text-gray-600 mt-1">{application.company}</p>
-          <span className="inline-block mt-2 px-2 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 rounded-full">
-            {STATUS_LABELS[application.status]}
-          </span>
+      <div className="flex items-start justify-between mt-4 mb-8 gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-lg bg-accent-bg flex items-center justify-center text-base font-semibold text-accent shrink-0">
+            {application.company[0]?.toUpperCase()}
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-ink">{application.jobTitle}</h1>
+            <p className="text-sm text-muted">{application.company}</p>
+          </div>
+          <Badge status={application.status} />
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setIsEditOpen(true)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
+        <div className="flex gap-2 shrink-0">
+          <Button variant="secondary" onClick={() => setIsEditOpen(true)} className="flex items-center gap-1.5">
+            <Pencil size={14} strokeWidth={2} />
             Edit
-          </button>
-          <button
-            onClick={() => setIsDeleteOpen(true)}
-            className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50"
-          >
+          </Button>
+          <Button variant="danger" onClick={() => setIsDeleteOpen(true)} className="flex items-center gap-1.5">
+            <Trash2 size={14} strokeWidth={2} />
             Delete
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-8">
-        <div className="col-span-2 space-y-8">
-          <section>
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Role information</h2>
-            <dl className="grid grid-cols-2 gap-4 bg-white border border-gray-200 rounded-lg p-4">
-              {infoRow("Location", application.location || "")}
-              {infoRow("Work mode", application.workMode || "")}
-              {infoRow("Employment type", application.employmentType || "")}
-              {infoRow("Source", application.source || "")}
-              {infoRow("Salary/Stipend", application.salary || "")}
-              {infoRow(
-                "Job URL",
-                application.jobUrl ? new URL(application.jobUrl).hostname : ""
-              )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-5">
+          <section className="bg-surface border border-border rounded-lg p-5">
+            <h2 className="text-sm font-semibold text-ink mb-4">Role information</h2>
+            <dl className="grid grid-cols-2 gap-4">
+              {infoField("Location", application.location || "")}
+              {infoField("Work mode", application.workMode || "")}
+              {infoField("Employment type", application.employmentType || "")}
+              {infoField("Source", application.source || "")}
+              {infoField("Salary/Stipend", application.salary || "")}
+              <div>
+                <dt className="text-xs font-medium text-faint uppercase tracking-wide">Job URL</dt>
+                <dd className="text-sm mt-0.5">
+                  {application.jobUrl ? (
+                    <a
+                      href={application.jobUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent hover:underline inline-flex items-center gap-1"
+                    >
+                      {new URL(application.jobUrl).hostname}
+                      <ExternalLink size={12} strokeWidth={2} />
+                    </a>
+                  ) : (
+                    <span className="text-faint">—</span>
+                  )}
+                </dd>
+              </div>
             </dl>
           </section>
 
-          <section>
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Important dates</h2>
-            <dl className="grid grid-cols-2 gap-4 bg-white border border-gray-200 rounded-lg p-4">
-              {infoRow("Application date", formatDate(application.applicationDate))}
-              {infoRow("Deadline", formatDate(application.deadline))}
+          <section className="bg-surface border border-border rounded-lg p-5">
+            <h2 className="text-sm font-semibold text-ink mb-4">Important dates</h2>
+            <dl className="grid grid-cols-2 gap-4">
+              {infoField("Application date", formatDate(application.applicationDate))}
+              {infoField("Deadline", formatDate(application.deadline))}
             </dl>
           </section>
 
-          <section>
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Documents & contact</h2>
-            <dl className="grid grid-cols-2 gap-4 bg-white border border-gray-200 rounded-lg p-4">
-              {infoRow("Resume used", application.resumeUsed || "")}
-              {infoRow("Cover letter used", application.coverLetterUsed || "")}
-              {infoRow("Recruiter name", application.recruiterName || "")}
-              {infoRow("Recruiter email", application.recruiterEmail || "")}
+          <section className="bg-surface border border-border rounded-lg p-5">
+            <h2 className="text-sm font-semibold text-ink mb-4">Documents & contact</h2>
+            <dl className="grid grid-cols-2 gap-4">
+              {infoField("Resume used", application.resumeUsed || "")}
+              {infoField("Cover letter used", application.coverLetterUsed || "")}
+              {infoField("Recruiter name", application.recruiterName || "")}
+              {infoField("Recruiter email", application.recruiterEmail || "")}
             </dl>
           </section>
 
-          <section>
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Notes</h2>
-            <div className="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap">
-              {application.notes || <span className="text-gray-400">No notes added.</span>}
+          <section className="bg-surface border border-border rounded-lg p-5">
+            <h2 className="text-sm font-semibold text-ink mb-3">Notes</h2>
+            <div className="text-sm text-ink/80 whitespace-pre-wrap leading-relaxed">
+              {application.notes || <span className="text-faint">No notes added.</span>}
             </div>
           </section>
 
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-900">Interviews</h2>
-              <button onClick={openCreateInterview} className="text-xs text-indigo-600 hover:underline font-medium">
-                + Add interview
+          <section className="bg-surface border border-border rounded-lg p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-ink">Interviews</h2>
+              <button
+                onClick={openCreateInterview}
+                className="flex items-center gap-1 text-xs text-accent hover:underline font-medium"
+              >
+                <Plus size={13} strokeWidth={2.5} />
+                Add interview
               </button>
             </div>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <InterviewList interviews={application.interviews} onEdit={openEditInterview} onDelete={handleInterviewDelete} />
-            </div>
+            <InterviewList interviews={application.interviews} onEdit={openEditInterview} onDelete={handleInterviewDelete} />
           </section>
         </div>
 
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Timeline</h2>
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <section className="bg-surface border border-border rounded-lg p-5 lg:sticky lg:top-6">
+            <h2 className="text-sm font-semibold text-ink mb-4">Timeline</h2>
             <StatusTimeline entries={application.statusHistory} />
-          </div>
+          </section>
         </div>
       </div>
 
@@ -226,26 +237,24 @@ export default function ApplicationDetail() {
       </Modal>
 
       <Modal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} title="Delete application?">
-        <p className="text-sm text-gray-600 mb-4">This will permanently delete this application and cannot be undone.</p>
+        <p className="text-sm text-muted mb-4">This will permanently delete this application and cannot be undone.</p>
         <div className="flex justify-end gap-3">
-          <button onClick={() => setIsDeleteOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md">
-            Cancel
-          </button>
-          <button onClick={handleDelete} className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md">
+          <Button variant="secondary" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+          <Button variant="danger" onClick={handleDelete} className="!bg-danger !text-white !border-danger hover:!bg-danger/90">
             Delete
-          </button>
+          </Button>
         </div>
       </Modal>
 
       <Modal
-      isOpen={isInterviewFormOpen}
-      onClose={() => setIsInterviewFormOpen(false)}
-      title={editingInterview ? "Edit interview" : "Add interview"}
+        isOpen={isInterviewFormOpen}
+        onClose={() => setIsInterviewFormOpen(false)}
+        title={editingInterview ? "Edit interview" : "Add interview"}
       >
         <InterviewForm
-        initialData={editingInterview ?? undefined}
-        onSubmit={handleInterviewSubmit}
-        onCancel={() => setIsInterviewFormOpen(false)}
+          initialData={editingInterview ?? undefined}
+          onSubmit={handleInterviewSubmit}
+          onCancel={() => setIsInterviewFormOpen(false)}
         />
       </Modal>
     </div>
