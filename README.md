@@ -24,11 +24,13 @@ A full-stack web application for tracking internship and job applications — bu
 **Auth:** JWT (access + refresh tokens), bcrypt password hashing
 
 ## Project structure
+
+```
 job-tracker/
 ├── client/ # React + Vite frontend
 ├── server/ # Express + Prisma backend
 └── README.md
-
+```
 
 See `client/README.md` and `server/README.md` for setup details specific to each.
 
