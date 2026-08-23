@@ -17,7 +17,7 @@ export async function getApplications(req: AuthRequest, res: Response) {
 
 export async function getApplicationById(req: AuthRequest, res: Response) {
   try {
-    const application = await getApplication(req.userId!, req.params.id);
+    const application = await getApplication(req.userId!, String(req.params.id));
     res.json(application);
   } catch (err) {
     handleError(err, res);
@@ -31,7 +31,7 @@ export async function postApplication(req: AuthRequest, res: Response) {
 
 export async function patchApplication(req: AuthRequest, res: Response) {
   try {
-    const application = await updateApplication(req.userId!, req.params.id, req.body);
+    const application = await updateApplication(req.userId!, String(req.params.id), req.body);
     res.json(application);
   } catch (err) {
     handleError(err, res);
@@ -40,7 +40,7 @@ export async function patchApplication(req: AuthRequest, res: Response) {
 
 export async function removeApplication(req: AuthRequest, res: Response) {
   try {
-    await deleteApplication(req.userId!, req.params.id);
+    await deleteApplication(req.userId!, String(req.params.id));
     res.status(204).send();
   } catch (err) {
     handleError(err, res);

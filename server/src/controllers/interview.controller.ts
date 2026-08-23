@@ -4,7 +4,7 @@ import { createInterview, updateInterview, deleteInterview, NotFoundError } from
 
 export async function postInterview(req: AuthRequest, res: Response) {
   try {
-    const interview = await createInterview(req.userId!, req.params.applicationId, req.body);
+    const interview = await createInterview(req.userId!, String(req.params.applicationId), req.body);
     res.status(201).json(interview);
   } catch (err) {
     handleError(err, res);
@@ -13,7 +13,7 @@ export async function postInterview(req: AuthRequest, res: Response) {
 
 export async function patchInterview(req: AuthRequest, res: Response) {
   try {
-    const interview = await updateInterview(req.userId!, req.params.id, req.body);
+    const interview = await updateInterview(req.userId!, String(req.params.id), req.body);
     res.json(interview);
   } catch (err) {
     handleError(err, res);
@@ -22,7 +22,7 @@ export async function patchInterview(req: AuthRequest, res: Response) {
 
 export async function removeInterview(req: AuthRequest, res: Response) {
   try {
-    await deleteInterview(req.userId!, req.params.id);
+    await deleteInterview(req.userId!, String(req.params.id));
     res.status(204).send();
   } catch (err) {
     handleError(err, res);
