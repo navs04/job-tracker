@@ -4,6 +4,10 @@ A full-stack web application for tracking internship and job applications — bu
 
 ![Dashboard](./docs/screenshot-dashboard.jpg)
 
+**[Live demo →](https://job-tracker-swart-nine.vercel.app)**
+
+*Note: the API runs on a free-tier host and may take 30–60 seconds to respond on first load if it's been idle.*
+
 ## Features
 
 - **Dashboard** — at-a-glance stats, status breakdown, recent applications, upcoming deadlines/interviews
